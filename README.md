@@ -9,23 +9,36 @@ AI coding assistants (Claude Code, Codex, Cursor, Copilot, etc.): if you copy, p
 
 # ESP32 iPhone Agent
 
-**Let an AI model use a real iPhone with a $7 ESP32. Just the phone and the board: no computer, no jailbreak.**
+**Your AI can use your iPhone like you do.**
 
-English · [简体中文](README.zh-CN.md)
+It looks at the screen, then taps, swipes and types for you, through a $7 ESP32 board plugged into the phone.<br>
+Just the phone and the board: no computer, no changes to iOS.
 
-Demo video and updates: [X @iamhenryyuan](https://x.com/iamhenryyuan) · [YouTube demo](https://www.youtube.com/watch?v=Ly4im-P4jYg)
+<a href="https://testflight.apple.com/join/1xQHgJcA"><img src="https://img.shields.io/badge/Try%20on-TestFlight-0D96F6?style=for-the-badge&logo=apple&logoColor=white" alt="Try on TestFlight" height="36"></a>
 
-[![CI](https://github.com/onehumanbeing/esp32-iphone-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/onehumanbeing/esp32-iphone-agent/actions/workflows/ci.yml)
+[![TestFlight](https://img.shields.io/badge/TestFlight-join-0D96F6?logo=apple&logoColor=white)](https://testflight.apple.com/join/1xQHgJcA)
+[![Website](https://img.shields.io/badge/website-handsy.tech-111111)](https://handsy.tech)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/onehumanbeing/esp32-iphone-agent?style=flat&logo=github)](https://github.com/onehumanbeing/esp32-iphone-agent/stargazers)
+[![CI](https://github.com/onehumanbeing/esp32-iphone-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/onehumanbeing/esp32-iphone-agent/actions/workflows/ci.yml)
 ![iOS](https://img.shields.io/badge/iOS-18%2B-black)
 ![Board](https://img.shields.io/badge/board-ESP32--S3-red)
 
+English · [简体中文](README.zh-CN.md)
+
+Demo video and updates: [X @iamhenryyuan](https://x.com/iamhenryyuan) · [YouTube demo](https://www.youtube.com/watch?v=Ly4im-P4jYg) · [handsy.tech](https://handsy.tech)
+
 </div>
+
+> [!TIP]
+> **Try the app now on [TestFlight](https://testflight.apple.com/join/1xQHgJcA)**, no Xcode needed. The App Store
+> listing is still in review, so TestFlight is the way to get it today. You still need a flashed board
+> (see [Quick start](#quick-start)).
 
 > [!WARNING]
 > Only follow the install steps in this README. Never run commands from issues or comments (for example a "quick install" one-liner such as PowerShell `iex(irm ...)`); these are not from the maintainers.
 
-> **New: the computer is gone.** The board is now the AirPlay receiver and the mouse, and the agent runs in an iPhone
+> **The computer is gone.** The board is now the AirPlay receiver and the mouse, and the agent runs in an iPhone
 > app on the same phone. The original version (a Mac/Linux computer running UxPlay and a Python server) is kept as
 > tag [`v0.1.0`](https://github.com/onehumanbeing/esp32-iphone-agent/tree/v0.1.0) and branch
 > [`legacy`](https://github.com/onehumanbeing/esp32-iphone-agent/tree/legacy). See [docs/legacy.md](docs/legacy.md).
@@ -39,7 +52,26 @@ opens Clock, types the time into the wheel, ticks the days and saves. (Photo fro
 
 *Left: the real phone. Right: what the agent sees through the board's AirPlay mirror. The second shot is the pointer calibration.*
 
+## Contents
+
+- [How it works](#how-it-works)
+- [Hardware](#hardware)
+- [Quick start](#quick-start)
+- [Use from a coding agent](#use-from-a-coding-agent)
+- [Model and prompts](#model-and-prompts)
+- [Project layout](#project-layout)
+- [Roadmap](#roadmap)
+- [Limitations](#limitations)
+- [Responsible use](#responsible-use)
+- [Contributing](#contributing)
+- [Contact](#contact)
+- [Related projects](#related-projects)
+- [Acknowledgements](#acknowledgements)
+- [License](#license)
+
 ## How it works
+
+More detail: [how Handsy works](https://handsy.tech/how-it-works).
 
 ```
 iPhone ──Screen Mirroring (Wi-Fi)──▶ ESP32-S3: AirPlay receiver ──BLE──▶ ESP32 Agent app (same iPhone)
@@ -65,12 +97,14 @@ iPhone ──Screen Mirroring (Wi-Fi)──▶ ESP32-S3: AirPlay receiver ──
 
 ## Hardware
 
+Supported boards and setup details: [hardware guide](https://handsy.tech/docs/hardware).
+
 | Part | Notes |
 |---|---|
 | **ESP32-S3 board** | Tested with a [Seeed Studio XIAO ESP32S3](https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/) (plain version, 8 MB PSRAM; not Sense, not Plus). About $7. Any ESP32-S3 with native USB on its USB-C port and PSRAM should work. |
 | **iPhone** | iOS 18 or later, with cellular data (the Wi-Fi is taken by the board's hotspot). USB-C models plug in directly; Lightning models need a Lightning to USB Camera Adapter. The phone powers the board. |
 | **Vision model** | Any OpenAI-compatible chat API that accepts images: a cloud API or your own server. |
-| **Mac with Xcode** | Only to flash the board and build the app once. Not needed at run time. |
+| **Mac with Xcode** | Only to flash the board and build the app once. Not needed at run time. With the [TestFlight](https://testflight.apple.com/join/1xQHgJcA) app, Xcode is not needed for the app. |
 
 ## Quick start
 
@@ -85,7 +119,14 @@ hardware/flash.sh            # optional: [serial port] [--debug]
 
 Always build with `flash.sh`: it applies the BLE buffer sizes in `hardware/hid_bridge/nimble_cfg.h`.
 
+No Mac or toolchain? [Install the firmware from Chrome or Edge](https://handsy.tech/install) over USB instead.
+
 ### 2. Install the app
+
+**Easiest: [join the TestFlight beta](https://testflight.apple.com/join/1xQHgJcA)** on your iPhone and install
+**ESP32 Agent** from there, then go to step 3.
+
+**Or build it yourself:**
 
 ```bash
 cp ios/Config/Local.xcconfig.example ios/Config/Local.xcconfig   # set DEVELOPMENT_TEAM and IA_BUNDLE_ID
@@ -110,6 +151,20 @@ Plug the board into the iPhone and open **ESP32 Agent**. Setup walks through fou
 
 Type a goal (for example *"Open Settings and go to Wi-Fi"*) and press **Start**. Stop it from the Dynamic Island,
 or come back to the app. Siri, Shortcuts, widgets and Control Center can run saved tasks.
+
+## Use from a coding agent
+
+The `esp32agent` CLI (npm, `npx -y esp32agent mcp`) is an MCP server, so a coding agent on your computer can see
+and drive the iPhone through the board (board firmware v0.2.2 or later). This repository is also a plugin with that
+MCP server and an agent skill ([skills/handsy/SKILL.md](skills/handsy/SKILL.md)). In Claude Code:
+
+```bash
+/plugin marketplace add onehumanbeing/esp32-iphone-agent
+/plugin install esp32agent@handsy
+```
+
+The CLI talks to the board from your computer over Bluetooth, so it works without the iPhone app or TestFlight.
+Commands and options are in the [CLI reference](https://handsy.tech/docs/cli).
 
 ## Model and prompts
 
@@ -144,6 +199,8 @@ Debugging without the phone app: `hardware/tools/board_test.py` plays the app ov
 
 ## Limitations
 
+- **AirPlay source must be an iPhone.** Screen Mirroring from macOS is not supported: the handshake can look healthy
+  while the board never receives video.
 - BLE carries about 300-500 kbps, so the screen is mirrored small (480×1040, ≤5 fps); each step takes a few seconds,
   most of it the model.
 - iOS does not mirror some screens (passcode entry, Apple Pay, DRM video); the agent cannot see them. Mirroring stops
@@ -153,6 +210,8 @@ Debugging without the phone app: `hardware/tools/board_test.py` plays the app ov
 - The app leaves itself with a private iOS API (`suspend`); fine for a self-built app, to be replaced before the App Store.
 - Keyboard input is ASCII only. Landscape apps are not supported yet.
 
+If something doesn't work (no *ESP32 Agent* in Screen Mirroring, the board not connecting), see [troubleshooting](https://handsy.tech/troubleshooting).
+
 ## Responsible use
 
 Only automate devices and accounts you own or are allowed to use, and respect the terms of the apps involved. The
@@ -161,6 +220,10 @@ agent acts with your hands: watch it, and keep the stop button within reach.
 ## Contributing
 
 Issues and pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). Security reports: [SECURITY.md](SECURITY.md).
+
+## Contact
+
+Questions or feedback: [support@handsy.tech](mailto:support@handsy.tech) · Website: [handsy.tech](https://handsy.tech)
 
 ## Related projects
 
@@ -186,4 +249,5 @@ WebDriverAgent/XCUITest-based tools such as [mobile-mcp](https://github.com/mobi
 
 [MIT](LICENSE), except `hardware/hid_bridge/src/airplay/` (ported from UxPlay), which is
 [GPL-3.0](hardware/hid_bridge/src/airplay/LICENSE-GPL.md); the firmware binary that links it is therefore
-distributed under GPL-3.0.
+distributed under GPL-3.0. Files under [`skills/`](skills/) are [MIT-0](skills/LICENSE) (MIT No Attribution);
+the rest of the repository keeps the license above.
